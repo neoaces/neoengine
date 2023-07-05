@@ -20,7 +20,7 @@ namespace neoengine {
 			const int height{720};
 		};
 		
-        GraphicsEngine(const Settings& settings);
+        explicit GraphicsEngine(const Settings& settings);
         ~GraphicsEngine();
 
 		[[nodiscard]] SDL_Window* get_native_window() const;
