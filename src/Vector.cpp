@@ -10,6 +10,11 @@ void Vector::scaleM(float sF) {
     this->Uj = this->Uj * sF;
 };
 
-void Vector::printVec() {
-    std::cout << "(" << this->getI() << ", " << this->getJ() << ")" << std::endl;
+void Vector::apply(Force *f, float delta) {
+    f->accel(Ui, Uj, delta);
 };
+
+
+void Vector::printVec() const {
+    std::cout << "(" << this->getI() << ", " << this->getJ() << ")" << std::endl;
+}
