@@ -11,3 +11,8 @@ include
 skia_compile_arguments.txt
 .DS_Store
 build/
+.idea/
+.cache/
+.vscode/
+cmake-build-debug/
+.clang-tidy
