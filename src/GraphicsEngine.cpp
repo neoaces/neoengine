@@ -23,7 +23,10 @@ GraphicsEngine::GraphicsEngine(const Settings& settings) {
 
 	gWindow = SDL_CreateWindow(settings.title.c_str(), center_window, center_window, settings.width, settings.height, winflags);
     gRenderer = SDL_CreateRenderer(gWindow, -1, renderflags);
-	
+
+    const float scale{get_scale()};
+    SDL_RenderSetScale(gRenderer, scale, scale); /// Allows for better scaling on retina displays
+
     // if (ARCH_MAC) {
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal"); /// Needed on macos; will crash if not present
 	// }
@@ -41,5 +44,21 @@ SDL_Renderer* GraphicsEngine::get_native_renderer() const {
 
 SDL_Window* GraphicsEngine::get_native_window() const {
     return gWindow;
+}
+
+float GraphicsEngine::get_scale() const {
+    int w_width{0};
+    int w_height{0};
+
+    SDL_GetWindowSize(gWindow, &w_width, &w_height);
+
+    int render_width{0};
+    int render_height{0};
+
+    SDL_GetRendererOutputSize(gRenderer, &render_width, &render_height);
+
+    const float scale_x = (float)render_width / (float)w_width;
+
+    return scale_x;
 }
 } // neoGraphics

@@ -33,6 +33,13 @@ namespace neoengine {
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        const float font_scaling{m_window->get_scale()};
+        const float font_size{(32.0f * font_scaling) / 2};
+
+        io.Fonts->AddFontFromFileTTF("Inter.ttf", font_size);
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Inter.ttf", font_size);
 
         ImGui_ImplSDL2_InitForSDLRenderer(
             m_window->get_native_window(), 
@@ -58,6 +65,31 @@ namespace neoengine {
             ImGui_ImplSDLRenderer2_NewFrame();
             ImGui_ImplSDL2_NewFrame();
             ImGui::NewFrame();
+
+            ImGui::DockSpaceOverViewport();
+
+            // ImGui::DockSpace(ImGui::GetID("DockSpace"));
+
+            if (ImGui::BeginMainMenuBar()) {
+                if (ImGui::BeginMenu("File")) {
+                    if (ImGui::MenuItem("Exit")) { exit(); }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("View")) {
+                    ImGui::MenuItem(
+                    "Show Config Window", nullptr, &isConfigWindow
+                    );
+                    ImGui::EndMenu();
+                }
+
+                ImGui::EndMainMenuBar();
+            }
+        
+            if (isConfigWindow) {
+                ImGui::Begin("Config", &isConfigWindow);
+                ImGui::Text("Place the configuration files here:");
+                ImGui::End();
+            }
             
             ImGui::Render();
 

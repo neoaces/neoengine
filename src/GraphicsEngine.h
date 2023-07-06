@@ -25,7 +25,7 @@ namespace neoengine {
 
 		[[nodiscard]] SDL_Window* get_native_window() const;
 		[[nodiscard]] SDL_Renderer *get_native_renderer() const;
-
+		[[nodiscard]] float get_scale() const;
 		
     };
 } // neoGraphics
