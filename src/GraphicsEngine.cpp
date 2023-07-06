@@ -13,7 +13,7 @@ namespace neoengine {
 GraphicsEngine::GraphicsEngine(const Settings& settings) {
 	auto winflags {
 		static_cast<SDL_WindowFlags>(SDL_WINDOW_RESIZABLE |
-                                     SDL_WINDOW_ALWAYS_ON_TOP)};
+                                     SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_ALLOW_HIGHDPI)};
 
 	constexpr int center_window{SDL_WINDOWPOS_CENTERED};
 

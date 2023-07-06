@@ -36,7 +36,7 @@ namespace neoengine {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         const float font_scaling{ m_window->get_scale() };
-        const float font_size{ (32.0f * font_scaling) / 2 };
+        const float font_size{ (16.0f * font_scaling) / 2 };
 
         io.Fonts->AddFontFromFileTTF("Inter.ttf", font_size);
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Inter.ttf", font_size);
