@@ -10,7 +10,6 @@
 #include "Body.h"
 #include "GraphicsEngine.h"
 
-
 using namespace neoengine;
 
 int main() {
