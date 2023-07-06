@@ -6,7 +6,7 @@
 #define IOSTREAM_DEC
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 #include "Body.h"
 #include "GraphicsEngine.h"
 

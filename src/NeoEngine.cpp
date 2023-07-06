@@ -10,9 +10,9 @@ namespace neoengine {
         if (INIT_FLAGS == 0) {
             std::cout << "SDL failed to initialize...";
             exit_status = 1;
-		}
-		m_window = std::make_unique<GraphicsEngine>
-			(GraphicsEngine::Settings{"Application"});
+        }
+        m_window = std::make_unique<GraphicsEngine>
+            (GraphicsEngine::Settings{ "Application" });
     }
 
     NeoEngine::~NeoEngine() {
@@ -26,29 +26,29 @@ namespace neoengine {
         if (exit_status == 1) {
             return exit_status;
         }
-
+	
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGuiIO& io{ImGui::GetIO()};
+        ImGuiIO& io{ ImGui::GetIO() };
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        const float font_scaling{m_window->get_scale()};
-        const float font_size{(32.0f * font_scaling) / 2};
+        const float font_scaling{ m_window->get_scale() };
+        const float font_size{ (32.0f * font_scaling) / 2 };
 
         io.Fonts->AddFontFromFileTTF("Inter.ttf", font_size);
         io.FontDefault = io.Fonts->AddFontFromFileTTF("Inter.ttf", font_size);
 
         ImGui_ImplSDL2_InitForSDLRenderer(
-            m_window->get_native_window(), 
+            m_window->get_native_window(),
             m_window->get_native_renderer());
 
         ImGui_ImplSDLRenderer2_Init(
             m_window->get_native_renderer()
         );
-        
+
         running = true;
 
         while (running) {
@@ -77,25 +77,25 @@ namespace neoengine {
                 }
                 if (ImGui::BeginMenu("View")) {
                     ImGui::MenuItem(
-                    "Show Config Window", nullptr, &isConfigWindow
+                        "Show Config Window", nullptr, &isConfigWindow
                     );
                     ImGui::EndMenu();
                 }
 
                 ImGui::EndMainMenuBar();
             }
-        
+
             if (isConfigWindow) {
                 ImGui::Begin("Config", &isConfigWindow);
                 ImGui::Text("Place the configuration files here:");
                 ImGui::End();
             }
-            
+
             ImGui::Render();
 
             // Clear window
             SDL_SetRenderDrawColor(m_window->get_native_renderer(), 100,
-                                    100, 100, 255);
+                100, 100, 255);
 
             SDL_RenderClear(m_window->get_native_renderer());
 

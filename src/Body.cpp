@@ -10,7 +10,7 @@ Body* Body::update(float delta) {
 
         fArr->push(temp);
     }
-
+    
     return this;
 }
 
