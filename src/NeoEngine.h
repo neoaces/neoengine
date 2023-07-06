@@ -22,6 +22,6 @@ namespace neoengine
 
         std::unique_ptr<GraphicsEngine> m_window{nullptr};
 
-        bool isConfigWindow {false};
+        bool isConfigWindow {true};
     };
 }
