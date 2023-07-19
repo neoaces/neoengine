@@ -1,5 +1,14 @@
 #[derive(Debug, PartialEq)]
-pub struct Vector {
-    pub x: f64,
-    pub y: f64,
+pub struct Vec2 {
+    pub x: f32,
+    pub y: f32,
+    pub a: f32
+}
+
+impl Vec2 {
+    pub fn new(x: f32, y: f32, a: f32) -> Vec2 {
+        Vec2 { 
+            x, y, a
+        }
+    }
 }

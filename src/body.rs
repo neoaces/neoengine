@@ -1,8 +1,9 @@
-use crate::vector::Vector;
+use crate::vector::Vec2;
 use core::fmt::Debug;
 
 pub trait Moveable {
-	fn apply(&self, ms: f32);
+	// type Body;
+	fn apply(&mut self, ms: f32) -> Result<(), CalculationError>;
 	fn print(&self);
 	fn to_string(&self) -> String;
 }
@@ -15,17 +16,35 @@ impl Debug for dyn Moveable {
 
 #[derive(Debug)]
 pub struct SquareBody {
-	x: f32,
-	y: f32,
-	velocity: Vector
+	pub x: f32,
+	pub y: f32,
+	pub velocity: Vec2
 }
 
 impl SquareBody {
-	fn print(&self) {
-		println!("{:#?}", self);
-	}
-	
 	fn to_string(&self) {
 		self.x.to_string();
 	}
+}
+
+#[derive(Debug)]
+pub struct CalculationError;
+
+impl Moveable for SquareBody {
+	fn apply(&mut self, ms: f32) -> Result<(), CalculationError> {
+		// X
+		self.x += self.velocity.x * ms;
+		// Y
+		self.y += self.velocity.y * ms;
+		Ok(())
+	}
+
+	fn print(&self) {
+		println!("Velocity, x: {}, y: {}", self.x, self.y);
+	}
+
+	fn to_string(&self) -> String {
+		let x  = format!("Velocity, x: {}, y: {}", self.x, self.y);
+		x
+	}	
 }

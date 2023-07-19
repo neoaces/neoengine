@@ -16,3 +16,4 @@ build/
 .vscode/
 cmake-build-debug/
 .clang-tidy
+target/
