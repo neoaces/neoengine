@@ -1,6 +1,5 @@
-
-
 #include "NeoEngine.h"
+
 #ifndef IOSTREAM_DEC
 #include <iostream>
 #define IOSTREAM_DEC
@@ -21,7 +20,7 @@ int main() {
 
     NeoEngine engine{};
 
-    return engine.init();
+    return engine.run();
 }
 
 // https://gafferongames.com/post/fix_your_timestep/

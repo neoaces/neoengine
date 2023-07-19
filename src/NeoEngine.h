@@ -1,7 +1,8 @@
 #pragma once
+#define GLFW_INCLUDE_NONE
 #include "GraphicsEngine.h"
-#include "backends/imgui_impl_sdl2.h"
-#include <SDL2/SDL.h>
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 #include <iostream>
 #include <memory>
 using neoengine::GraphicsEngine;
@@ -13,15 +14,19 @@ namespace neoengine
         NeoEngine();
         ~NeoEngine();
 
-        int init();
+        static void glfw_error_callback(int error, const char* description);
+        
+        int run();
         void exit();
 
     private:
         int exit_status {0};
-        bool running {true};
 
         std::unique_ptr<GraphicsEngine> m_window{nullptr};
 
-        bool isConfigWindow {true};
+        bool isConfigWindow{true};
+        bool isMainScene{true};
+        bool running{true};
+        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     };
 }

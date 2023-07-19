@@ -3,7 +3,7 @@
 #include "Vector.h"
 class Body {
 public:
-    Vector v;
+    neoengine::Vector v;
     Coordinates pos;
 
     Body(float i, float j, float x, float y) : v(i, j), pos(x, y) {};

@@ -13,10 +13,15 @@ add_library(imgui STATIC
   imstb_rectpack.h
   imstb_textedit.h
   imstb_truetype.h
-  backends/imgui_impl_sdl2.h
-  backends/imgui_impl_sdl2.cpp
-  backends/imgui_impl_sdlrenderer2.h
-  backends/imgui_impl_sdlrenderer2.cpp)
-
-target_include_directories(imgui PUBLIC ./)
-target_link_libraries(imgui PUBLIC SDL2::SDL2)
+  backends/imgui_impl_opengl3.h
+  backends/imgui_impl_opengl3.cpp
+  backends/imgui_impl_glfw.h
+  backends/imgui_impl_glfw.cpp
+  )
+target_include_directories(imgui PUBLIC ./ 
+  ${CMAKE_SOURCE_DIR}/include/glfw/include 
+  ${CMAKE_SOURCE_DIR}/include/glad
+  ${CMAKE_SOURCE_DIR}/include/KHR
+  ${CMAKE_SOURCE_DIR}/include/glm
+)
+target_link_libraries(imgui PUBLIC SDL2::SDL2 ${CMAKE_SOURCE_DIR}/include/glfw/libglfw3.a)

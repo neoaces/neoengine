@@ -12,7 +12,7 @@ struct Coordinates {
     float y;
     Coordinates(float x, float y): x(x), y(y) {};
 };
-
+namespace neoengine{
 class Vector {
     float Ui; /// Unit i vector along x-axis
     float Uj; /// Unit j vector along y-axis
@@ -31,12 +31,17 @@ public:
         forces.push(g); /// Unless the plane is weightless, gravity will always be a force.
     };
 
+    Vector() {
+        Ui = 0;
+        Uj = 0;
+    }
+
     /**
      *@brief Adds vector v onto the primary vector
      *
      * @param v Instance of vector to be added
      */
-    void add(Vector v);
+    void add(Vector *v);
 
     /**
      *@brief Scales the vector by vector v
@@ -45,8 +50,8 @@ public:
      */
     void scaleM(float sF); // Change int type into ctime in seconds
 
-    float getI() const { return Ui; };
-    float getJ() const { return Uj; };
+    [[nodiscard]] float getI() const { return Ui; };
+    [[nodiscard]] float getJ() const { return Uj; };
 
     /**
      *@brief Prints out the vector's x and y coordinates relative to the i and j vectors.
@@ -63,3 +68,4 @@ public:
      */
     void apply(Force* f, float delta);;
 };
+}

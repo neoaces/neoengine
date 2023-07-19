@@ -1,64 +1,72 @@
-//
-// Created by neoaces on 2023-06-27.
-//
-
 #include "GraphicsEngine.h"
-#include "backends/imgui_impl_sdl2.h"
+#include "ShaderProg.h"
 
 #if __APPLE__
 #define ARCH_MAC true
 #endif
 
-namespace neoengine {
+namespace neoengine
+{
 GraphicsEngine::GraphicsEngine(const Settings& settings) {
-	auto winflags {
-		static_cast<SDL_WindowFlags>(SDL_WINDOW_RESIZABLE |
-                                     SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_ALLOW_HIGHDPI)};
+    glfwSetErrorCallback(&glfwError); // Prints out any errors in OpenGL
+    glfwInit();
 
-	constexpr int center_window{SDL_WINDOWPOS_CENTERED};
+    // Decide GL+GLSL versions
+    #if defined(IMGUI_IMPL_OPENGL_ES2)
+        // GL ES 2.0 + GLSL 100
+        glsl_version = "#version 100";
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+    #elif defined(__APPLE__)
+        // GL 3.2 + GLSL 150
+        glsl_version = "#version 150";
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+    #else
+        // GL 3.0 + GLSL 130
+        glsl_version = "#version 130";
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+        //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+    #endif
 
-	auto renderflags {
-		static_cast<SDL_RendererFlags>(SDL_RENDERER_PRESENTVSYNC |
-									   SDL_RENDERER_ACCELERATED)};
+	gWindow = glfwCreateWindow(settings.width, settings.height, settings.title.c_str(), nullptr, nullptr);
+    if (gWindow == nullptr) {
+        error = true;
+    }
+    
+    glfwMakeContextCurrent(gWindow);
+    glfwSwapInterval(1);  // Enables vsync
 
-	gWindow = SDL_CreateWindow(settings.title.c_str(), center_window, center_window, settings.width, settings.height, winflags);
-    gRenderer = SDL_CreateRenderer(gWindow, -1, renderflags);
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        printf("FAILED!");
+        exit(1);
+    };
 
-    const float scale{get_scale()};
-    SDL_RenderSetScale(gRenderer, scale, scale); /// Allows for better scaling on retina displays
+    ShaderProg myProgram;
 
-    // if (ARCH_MAC) {
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal"); /// Needed on macos; will crash if not present
-	// }
+    myProgram.attach("./vs.glsl", GL_VERTEX_SHADER);
+    myProgram.attach("./fs.glsl", GL_FRAGMENT_SHADER);
+    myProgram.link();
+
+        glGenVertexArrays(1, &vertexArray);
+    glGenBuffers(1, &vertexBuffer);
+
+    glBindVertexArray(vertexArray);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+
+    glEnableVertexAttribArray(0);
 }
 
-GraphicsEngine::~GraphicsEngine() {
-    //Destroy gWindow and quit SDL subsystems
-    SDL_DestroyRenderer(gRenderer);
-    SDL_DestroyWindow(gWindow);
-}
-
-SDL_Renderer* GraphicsEngine::get_native_renderer() const {
-    return gRenderer;
-}
-
-SDL_Window* GraphicsEngine::get_native_window() const {
+GLFWwindow* GraphicsEngine::get_native_window() const {
     return gWindow;
-}
-
-float GraphicsEngine::get_scale() const {
-    int w_width{0};
-    int w_height{0};
-
-    SDL_GetWindowSize(gWindow, &w_width, &w_height);
-
-    int render_width{0};
-    int render_height{0};
-
-    SDL_GetRendererOutputSize(gRenderer, &render_width, &render_height);
-
-    const float scale_x = (float)render_width / (float)w_width;
-
-    return scale_x;
 }
 } // neoGraphics

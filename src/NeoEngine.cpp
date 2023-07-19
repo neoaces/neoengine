@@ -1,74 +1,63 @@
 #include "NeoEngine.h"
 #include "GraphicsEngine.h"
-#include <backends/imgui_impl_sdl2.h>
-#include <backends/imgui_impl_sdlrenderer2.h>
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "glad.h"
+#include "glfw3.h"
 #include <imgui.h>
 
 namespace neoengine {
+    static void glfw_error_callback(int error, const char* description) {
+        fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+    }
+
     NeoEngine::NeoEngine() {
-        unsigned int INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_TIMER;
-        if (INIT_FLAGS == 0) {
-            std::cout << "SDL failed to initialize...";
-            exit_status = 1;
-        }
         m_window = std::make_unique<GraphicsEngine>
-            (GraphicsEngine::Settings{ "Application" });
+            (GraphicsEngine::Settings());
     }
 
     NeoEngine::~NeoEngine() {
-        ImGui_ImplSDLRenderer2_Shutdown();
-        ImGui_ImplSDL2_Shutdown();
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
-        SDL_Quit();
+
+        glfwDestroyWindow(m_window->get_native_window());
+        glfwTerminate();
     };
 
-    int NeoEngine::init() {
+    int NeoEngine::run() {
         if (exit_status == 1) {
             return exit_status;
         }
 	
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGuiIO& io{ ImGui::GetIO() };
+        ImGuiIO& io{ImGui::GetIO()};
+
+        io.Fonts->AddFontFromFileTTF("Inter.ttf", 16.0f);
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Inter.ttf", 16.0f);
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        const float font_scaling{ m_window->get_scale() };
-        const float font_size{ (16.0f * font_scaling) / 2 };
+        ImGuiStyle& style = ImGui::GetStyle();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            style.WindowRounding = 0.0f;
+            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        }
 
-        io.Fonts->AddFontFromFileTTF("Inter.ttf", font_size);
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("Inter.ttf", font_size);
+        ImGui_ImplGlfw_InitForOpenGL(m_window->get_native_window(), true);
+        ImGui_ImplOpenGL3_Init();
 
-        ImGui_ImplSDL2_InitForSDLRenderer(
-            m_window->get_native_window(),
-            m_window->get_native_renderer());
+        while (running && !glfwWindowShouldClose(m_window->get_native_window())) {
+            glfwPollEvents();
 
-        ImGui_ImplSDLRenderer2_Init(
-            m_window->get_native_renderer()
-        );
-
-        running = true;
-
-        while (running) {
-            // Poll SDL events
-            SDL_Event event{};
-            while (SDL_PollEvent(&event) == 1) {
-                ImGui_ImplSDL2_ProcessEvent(&event);
-                // Listen for the quit event to stop the application
-                if (event.type == SDL_QUIT) {
-                    exit();
-                }
-            }
-
-            ImGui_ImplSDLRenderer2_NewFrame();
-            ImGui_ImplSDL2_NewFrame();
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
             ImGui::DockSpaceOverViewport();
-
-            // ImGui::DockSpace(ImGui::GetID("DockSpace"));
 
             if (ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu("File")) {
@@ -91,17 +80,37 @@ namespace neoengine {
                 ImGui::End();
             }
 
+            if (isMainScene) {
+                ImGui::Begin("Scene", &isConfigWindow);
+                ImGui::BeginChild("SceneRender");
+
+                
+                // ImGui::Text("Scene here:");
+
+                ImGui::EndChild();
+                ImGui::End();
+            }
+
+            // Rendering
             ImGui::Render();
+            int display_w, display_h;
+            glfwGetFramebufferSize(m_window->get_native_window(), &display_w, &display_h);
+            glViewport(0, 0, display_w, display_h);
+            glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+            glClear(GL_COLOR_BUFFER_BIT);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-            // Clear window
-            SDL_SetRenderDrawColor(m_window->get_native_renderer(), 100,
-                100, 100, 255);
+            // Update and Render additional Platform Windows
+            // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+            //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+                GLFWwindow* backup_current_context = glfwGetCurrentContext();
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+                glfwMakeContextCurrent(backup_current_context);
+            }
 
-            SDL_RenderClear(m_window->get_native_renderer());
-
-            // Render current frame
-            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-            SDL_RenderPresent(m_window->get_native_renderer());
+            glfwSwapBuffers(m_window->get_native_window());
         }
 
         return exit_status;
