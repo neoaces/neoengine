@@ -1,5 +1,5 @@
-use crate::{body::Moveable, conversions::mil_to_secs};
-use std::time::{Instant};
+use crate::{body::Moveable, conversions::time_ms};
+use std::time::Instant;
 
 #[derive(Debug)]
 pub struct Neoengine {
@@ -11,6 +11,7 @@ pub struct Neoengine {
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct InitializationError;
+pub struct ProcessingError;
 
 impl Neoengine {
 	pub fn init() -> Result<Neoengine, InitializationError> { 
@@ -20,15 +21,17 @@ impl Neoengine {
 			prev_frame: 0.0
 		};
 		
-		n.prev_frame = mil_to_secs(n.timer);
+		n.prev_frame = n.timer.elapsed().as_millis() as f32;
+		
+		println!("Current time is {}", n.prev_frame);
 
 		Ok(n)
 	}
 	
-	pub fn process(&mut self) -> Result<(),()>{ 
+
+	pub fn process(&mut self) -> Result<(),ProcessingError>{ 
 		for body in self.bodies.iter_mut() {
-			body.apply(((self.timer.elapsed().as_millis() as f32) - self.prev_frame) / 1000.0).expect("Failed to calculate.");
-			println!("Time elapsed: {}", self.timer.elapsed().as_secs());
+			body.apply((self.timer.elapsed().as_millis() as f32) - self.prev_frame).expect("Failed to calculate.");
 		}
 
 		self.prev_frame = self.timer.elapsed().as_millis() as f32;
@@ -46,10 +49,10 @@ impl Neoengine {
 	}
 
 	pub fn stat(&self) {
-		println!("\nSTATS\nCurrent time: {} secs", self.timer.elapsed().as_secs());
+		println!("\nSTATS\nCurrent time: {}s", self.timer.elapsed().as_secs());
 		
 		for (index, body) in self.bodies.iter().enumerate() {
-			print!("Body {}. ", index);
+			print!("Body {}. | ", index);
 			body.print();
 		}
 	}
