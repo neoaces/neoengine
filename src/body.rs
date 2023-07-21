@@ -21,13 +21,6 @@ pub struct SquareBody {
 	pub velocity: Vec2,
 	pub acc: Vec2 // TODO: Create test for acceleration
 }
-
-// impl SquareBody {
-// 	fn to_string(&self) {
-// 		self.x.to_string();
-// 	}
-// }
-
 #[derive(Debug)]
 pub struct CalculationError;
 
